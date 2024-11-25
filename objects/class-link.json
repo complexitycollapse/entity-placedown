@@ -1,0 +1,10 @@
+{
+  "type": "type",
+  "ends": [
+    {
+      "name": "class",
+      "pointers": [
+      ]
+    }
+  ]
+}

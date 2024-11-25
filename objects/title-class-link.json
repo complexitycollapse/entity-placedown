@@ -1,0 +1,11 @@
+{
+  "type": { "leafType": "link pointer", "origin": "class-link.json" },
+  "ends": [
+    {
+      "name": "name",
+      "pointers": [
+        { "leafType": "parameter", "value": "Title"}
+      ]
+    }
+  ]
+}

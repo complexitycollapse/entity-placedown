@@ -1,0 +1,11 @@
+{
+  "type": "type",
+  "ends": [
+    {
+      "name": "metalink",
+      "pointers": [
+        { "leafType": "link pointer", "origin": "title-class-link.json" }
+      ]
+    }
+  ]
+}

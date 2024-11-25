@@ -1,0 +1,9 @@
+{
+  "type": { "leafType": "link pointer", "origin": "type-with-class-link.json"},
+  "clips": [
+    { "leafType": "span", "start": 0, "length": 10 }
+  ],
+  "links": [
+    { "leafType": "link pointer", "origin": "example-link.json" }
+  ]
+}

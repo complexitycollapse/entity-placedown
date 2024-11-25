@@ -1,0 +1,11 @@
+{
+  "type": { "leafType": "link pointer", "origin": "complex-type-link.json" },
+  "ends": [
+    {
+      "name": "first",
+      "pointers": [
+        { "leafType": "span", "origin": "content", "start": 0, "end": 10}
+      ]
+    }
+  ]
+}
