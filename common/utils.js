@@ -22,3 +22,35 @@ export function removeItem(array, item) {
     array.splice(index, 1); // Removes the item at the found index
   }
 }
+
+export function ListMap() {
+  let table = new Map();
+
+  function push(key, value) {
+    if (table.has(key)) {
+      table.get(key).push(value);
+    } else {
+      table.set(key, [value]);
+    }
+  }
+
+  function remove(key) {
+    table.delete(key);
+  }
+
+  function removeItem(key, item) {
+    const list = table.get(key);
+    removeItem(list, item);
+  }
+
+  return {
+    table,
+    push,
+    get: key => table.get(key) ?? [],
+    has: key => table.has(key),
+    entries: () => table.entries(),
+    values: () => table.values(),
+    remove,
+    removeItem
+  };
+}
