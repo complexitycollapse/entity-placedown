@@ -1,102 +1,16 @@
-import {ListMap} from "../common/utils.js";
+import { registerComponentTypes, registerEventHandler, Component, Document } from "../interpreter/entities";
 
 export function openTab(id) {
   [...document.getElementsByClassName("tab")].forEach(tab => tab.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
 
-let ids = 0;
-const componentTypes = {};
-const entities = new Map();
-const queuedEvents = [];
-const eventHandlers = ListMap();
+const document = Document();
 const pouncer = {
   get: async (pointer, additionalData) => undefined // TODO
 };
 
-const Entity = (initFn) => {
-  let obj = {
-    id: ++ids,
-    components: new ListMap(),
-    add: newComponent => {
-      obj.components.push(newComponent.componentType, newComponent);
-      newComponent.setEntity(obj);
-      componentTypes[newComponent.componentType].add(newComponent);
-    },
-    get: name => {
-      const cs = obj.getAll(name);
-      return cs.lenght === 0 ? undefined : cs[0];
-    },
-    getAll: name => {
-      return obj.components.get(name);
-    }
-  };
-
-  entities.set(obj.id, obj);
-
-  if (initFn) {
-    initFn(obj);
-  }
-
-  return obj;
-}
-
-const ComponentContainer = componentTypeName => {
-  let obj = {
-    componentTypeName,
-    components: [],
-    add: component => {
-      obj.components.push(component);
-      queuedEvents.push({type: "add component", component: newComponent, entity: obj});
-    }
-  };
-
-  return obj;
-}
-
-const registerEventHandler = (type, predicate, handler) => {
-  eventHandlers.push(type, {predicate, handler});
-}
-
-const processNextEvent = () => {
-  const event = queuedEvents.shift();
-  if (event) {
-    const handlers = eventHandlers(event.type);
-    for (const handler of handlers) {
-      if (handler.predicate(event)) {
-        handler.handler(event);
-        break;
-      }
-    }
-  }
-}
-
-// TODO: call this somewhere
-const processAllEvents = () => {
-  while(queuedEvents.length > 0) {
-    processNextEvent();
-  }
-}
-
-const registerComponentTypes = (...names) => {
-  names.forEach(name => componentTypes[name] = ComponentContainer(name));
-}
-
 registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "content");
-
-const Component = (componentName, initFn) => {
-  let obj = {
-    componentName,
-    get entityId() { return obj.entity.id; },
-    setEntity: entity => obj.entity = entity
-  };
-
-  if (initFn) {
-    initFn(obj);
-  }
-
-  return obj;
-}
 
 const EdlComponent = edlPointer => {
   return Component("edl", obj => {
@@ -124,15 +38,15 @@ const VisualComponent = () => {
   return {
     children: []
   }
-}
+};
 
-const Document = pointer => {
-  return Entity(obj => {
+const DocumentRoot = pointer => {
+  return document.add(obj => {
     obj.add(EdlComponent(pointer));
     obj.add(DownloaderComponent(pointer));
     obj.add(VisualComponent());
   });
-}
+};
 
 registerEventHandler("add component", event => event.component.componentName === "downloader", event => {
   const downloader = event.component;
