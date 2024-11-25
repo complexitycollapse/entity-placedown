@@ -1,5 +1,10 @@
 import {ListMap} from "../common/utils.js";
 
+export function openTab(id) {
+  [...document.getElementsByClassName("tab")].forEach(tab => tab.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
 let ids = 0;
 const componentTypes = {};
 const entities = new Map();

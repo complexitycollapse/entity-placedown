@@ -1,24 +1,17 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import * as fileWatcher from "./file-watcher.js";
 
 const env = process.env.NODE_ENV || "development";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// If development environment 
-if (env === "development") {
-  fileWatcher.watch(path.join(__dirname, ".."));
-}
-
-
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
-    // show: false,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
       nodeIntegration: true,
@@ -26,9 +19,14 @@ const createWindow = () => {
     }
   });
 
-  // win.maximize();
-  // win.show();
-  win.loadFile("window/index.html");
+  win.maximize();
+  win.show();
+
+  if (env === "development") {
+    win.loadURL("http://localhost:5173/window/index.html");
+  } else {
+    win.loadFile(path.join(__dirname, "dist/window/index.html"));
+  }
 
   // Listen for console events and open DevTools on error
   win.webContents.on("console-message", (event, level, message, line, sourceId) => {
