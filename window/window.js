@@ -1,16 +1,19 @@
 import { registerComponentTypes, registerEventHandler, Component, Document } from "../interpreter/entities";
+import { initCache } from "../auxiliary/cache";
+
+initCache(electron, true);
 
 export function openTab(id) {
   [...document.getElementsByClassName("tab")].forEach(tab => tab.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
 
-const document = Document();
+//const document = Document();
 const pouncer = {
   get: async (pointer, additionalData) => undefined // TODO
 };
 
-registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "content");
+registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "content", "root");
 
 const EdlComponent = edlPointer => {
   return Component("edl", obj => {
@@ -25,7 +28,7 @@ const EdlComponent = edlPointer => {
   });
 }
 
-const DownloaderComponent = pointer => {
+export const DownloaderComponent = pointer => {
   return Component("downloader", obj => {
     obj.pointer = pointer;
     obj.state = "created";
@@ -40,11 +43,12 @@ const VisualComponent = () => {
   }
 };
 
-const DocumentRoot = pointer => {
+export const DocumentRoot = pointer => {
   return document.add(obj => {
     obj.add(EdlComponent(pointer));
     obj.add(DownloaderComponent(pointer));
     obj.add(VisualComponent());
+    obj.add(Component("root"));
   });
 };
 
