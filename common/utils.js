@@ -38,11 +38,6 @@ export function ListMap() {
     table.delete(key);
   }
 
-  function removeItem(key, item) {
-    const list = table.get(key);
-    removeItem(list, item);
-  }
-
   return {
     table,
     push,
@@ -51,6 +46,9 @@ export function ListMap() {
     entries: () => table.entries(),
     values: () => table.values(),
     remove,
-    removeItem
+    removeItem: (key, item) => {
+      const list = table.get(key);
+      removeItem(list, item);
+    }
   };
 }
