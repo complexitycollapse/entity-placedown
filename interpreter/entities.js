@@ -22,6 +22,8 @@ export const Document = () => {
      */
     add: initFn => Entity(obj, initFn),
 
+    getComponents: type => obj.components[type].components,
+
     /**
      * Queues an event for processing.
      * @param {Object} event - The event object.
@@ -178,7 +180,7 @@ const ComponentRegistry = (document, componentTypeName) => {
      */
     add: component => {
       obj.components.push(component);
-      document.queueEvent({type: "add component", component: newComponent, entity: obj});
+      document.queueEvent({type: "add component", component: component, entity: obj});
     }
   };
 
