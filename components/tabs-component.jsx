@@ -9,22 +9,22 @@ export default function TabsComponent() {
   const [doc] = useState(() => {
     const doc = Document();
     doc.add(obj => {
-      obj.add(DownloaderComponent());
+      obj.add(DownloaderComponent("ptr"));
     });
     return doc;
   });
 
   return (
     <StrictMode>
-        <div className="button-bar">
-          <input type="button" value="Downloads" onClick={() => openTab('downloads-tab')}></input>
-          <input type="button" value="Cache" onClick={() => openTab('cache-tab')}></input>
+        <div className="tab-bar">
+          <div id="downloads-tab" class="tab active" onClick={() => openTab("downloads-tab", 'downloads-panel')}>Downloads</div>
+          <div id="cache-tab" class="tab" onClick={() => openTab("cache-tab", 'cache-panel')}>Cache</div>
         </div>
-        <div id="downloads-tab" className="tab">
+        <div id="downloads-panel" className="panel">
           <h1>Downloads</h1>
           <ComponentListComponent doc={doc} componentType={"downloader"} elementToNode={downloaderToNode} />
         </div>
-        <div id="cache-tab" className="tab hidden">
+        <div id="cache-panel" className="panel hidden">
           <CacheListComponent/>
         </div>
     </StrictMode>
@@ -36,8 +36,18 @@ function downloaderToNode(component) {
     key: component.entity.id,
     element: component,
     formatter: () => ({
-      label: component.entity.id,
-      children: []
+      label: component.entity.id + " (" + component.pointer + ")",
+      children: [
+        property(component, "state")
+      ]
     })
   });
+}
+
+function property(obj, prop, formatter = v => v) {
+  return {
+    key: prop,
+    element: obj[prop],
+    formatter: v => ({ label: prop, value: formatter(v) })
+  };
 }

@@ -3,9 +3,11 @@ import { initCache } from "../auxiliary/cache";
 
 initCache(electron, true);
 
-export function openTab(id) {
-  [...document.getElementsByClassName("tab")].forEach(tab => tab.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+export function openTab(tab, panel) {
+  [...document.getElementsByClassName("panel")].forEach(tab => tab.classList.add("hidden"));
+  [...document.getElementsByClassName("tab")].forEach(tab => tab.classList.remove("active"));
+  document.getElementById(panel).classList.remove("hidden");
+  document.getElementById(tab).classList.add("active");
 }
 
 //const document = Document();

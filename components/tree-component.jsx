@@ -45,13 +45,12 @@ export function TreeNodeComponent({ node, TreeComponent }) {
 
   return (
     <li style={{
-      color: "rgb(221, 0, 169)",
       paddingLeft: "0.5em",
       listStyleType: showChildren ? "\"-\"" : "\"+\""
     }}>
       <div onClick={handleClick} style={{ marginBottom: "0.5em" }}>
         <span>{ label }</span>
-        {value && <span style={{ color: "rgb(0, 116, 232)", marginLeft: "1rem" }}>{value}</span>}
+        {value && <span style={{ color: "var(--text-color-subtle)", marginLeft: "1rem" }}>{value}</span>}
       </div>
       {showChildren && children && <TreeComponent treeData={children} />}
     </li>

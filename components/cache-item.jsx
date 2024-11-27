@@ -34,13 +34,12 @@ export default function CacheItem({ node }) {
 
   return (
     <li style={{
-      color: "rgb(221, 0, 169)",
       paddingLeft: "0.5em",
       listStyleType: showChildren ? "\"-\"" : "\"+\""
     }}>
       <div style={{ marginBottom: "0.5em" }}>
         <span onClick={handleClick}>{ label }</span>
-        {value && <span onClick={handleClick} style={{ color: "rgb(0, 116, 232)", marginLeft: "1rem" }}>{value}</span>}
+        {value && <span onClick={handleClick} style={{ color: "var(--text-color-subtle)", marginLeft: "1rem" }}>{value}</span>}
         <input type="button" style={{ display: "inline", marginLeft: "1rem" }} value="Load" onClick={loadClicked}></input>
         {name.includes("edl") && <input type="button" style={{ display: "inline", marginLeft: "1rem" }} value="Load Edl" onClick={loadEdlClicked}></input>}
       </div>

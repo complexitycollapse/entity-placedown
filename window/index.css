@@ -2,8 +2,46 @@
   box-sizing: border-box;
 }
 
-.button-bar {
-  display: flex
+:root {
+  --ui-background-color: #282c34;
+  --deselected-background-color: #21252b;
+  --text-color:            #9da5b4;
+  --text-color-subtle:     rgba(157, 165, 180, 0.6);
+  --text-color-highlight:  #d7dae0;;
+  --text-color-selected:   white;
+}
+
+body {
+  background-color: var(--ui-background-color);
+  color: var(--text-color);
+  font-family: system-ui;
+  margin: 0 0;
+}
+
+h1 {
+  font-weight: 500;
+  font-size: 1.4em;
+  margin: 1em 0;
+}
+
+.tab-bar {
+  display: flex;
+  background-color: var(--deselected-background-color);
+  line-height: 2em;
+}
+
+.tab {
+  border: none;
+  color: var(--text-color-subtle);
+  background-color: inherit;
+  line-height: inherit;
+  font-size: 12px;
+  margin: 0 0.66em;
+}
+
+.tab.active {
+  background-color: var(--ui-background-color);
+  color: var(--text-color-highlight);
 }
 
 .hidden {
