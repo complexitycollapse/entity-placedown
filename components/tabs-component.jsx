@@ -1,7 +1,7 @@
 import { StrictMode, useState } from 'react'
 import { Document } from "../interpreter/entities.js";
 import CacheListComponent from './cache-list-component';
-import { DownloaderComponent, openTab } from '../window/window';
+import { DownloaderComponent, eventLoop, openTab } from '../window/window';
 import { ComponentListComponent } from './component-list-component.jsx';
 
 export default function TabsComponent() {
@@ -9,8 +9,9 @@ export default function TabsComponent() {
   const [doc] = useState(() => {
     const doc = Document();
     doc.add(obj => {
-      obj.add(DownloaderComponent("ptr"));
+      obj.add(DownloaderComponent({ type:"edl", origin: "example-edl.json" }));
     });
+    eventLoop(doc);
     return doc;
   });
 
@@ -36,7 +37,7 @@ function downloaderToNode(component) {
     key: component.entity.id,
     element: component,
     formatter: () => ({
-      label: component.entity.id + " (" + component.pointer + ")",
+      label: component.entity.id + " (" + JSON.stringify(component.pointer) + ")",
       children: [
         property(component, "state")
       ]

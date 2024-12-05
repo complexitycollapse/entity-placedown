@@ -1,7 +1,8 @@
 import { registerComponentTypes, registerEventHandler, Component, Document } from "../interpreter/entities";
-import { initCache } from "../auxiliary/cache";
+import getCache, { initCache } from "../auxiliary/cache";
 
 initCache(electron, true);
+const cache = getCache();
 
 export function openTab(tab, panel) {
   [...document.getElementsByClassName("panel")].forEach(tab => tab.classList.add("hidden"));
@@ -60,11 +61,13 @@ export const DocumentRoot = pointer => {
   });
 };
 
-registerEventHandler("add component", event => event.component.componentName === "downloader", event => {
+registerEventHandler("add component", event => event.component.componentType === "downloader", event => {
   const downloader = event.component;
   const pointer = downloader.pointer;
   downloader.notifyDownloadStarted();
-  pouncer.get(pointer, { pointer, entity: event.entity, downloader });
+  cache.get(pointer.origin).then(content => {
+    downloader.notifyDownloadSuccessful();
+  });
 });
 
 registerEventHandler("leaf pounced", () => true, event => {
@@ -78,3 +81,12 @@ registerEventHandler("leaf pounced", () => true, event => {
     }
   });
 });
+
+// Crude event loop
+export async function eventLoop(doc) {
+  doc.processAllEvents();
+
+  while (true) {
+    await new Promise(resolve => doc.processAllEvents(resolve));
+  }
+}

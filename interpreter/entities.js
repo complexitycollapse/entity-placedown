@@ -14,6 +14,7 @@ export const Document = () => {
     entities: new Map(), // All the entities that the doc is decomposed into
     components: {}, // Component registries for each type of component
     eventQueue: [], // Unprocessed events (push to queue, shift to unqueue)
+    eventQueuedCallback: undefined, // Called when an empty queue has an item again
 
     /**
      * Adds a new entity to the Document.
@@ -28,16 +29,23 @@ export const Document = () => {
      * Queues an event for processing.
      * @param {Object} event - The event object.
      */
-    queueEvent: event => obj.eventQueue.push(event),
+    queueEvent: event => {
+      obj.eventQueue.push(event);
+      if (obj.eventQueuedCallback) {
+        obj.eventQueuedCallback();
+      }
+    },
 
     // TODO: call this somewhere
     /**
      * Handle all events in the queue.
      */
-    processAllEvents: () => {
+    processAllEvents: (nextEventQueuedCallback) => {
+      obj.eventQueuedCallback = undefined;
       while(obj.eventQueue.length > 0) {
         obj.processNextEvent();
       }
+      obj.eventQueuedCallback = nextEventQueuedCallback;
     },
 
     /**
@@ -46,7 +54,7 @@ export const Document = () => {
     processNextEvent: () => {
       const event = obj.eventQueue.shift();
       if (event) {
-        const handlers = eventHandlers(event.type);
+        const handlers = eventHandlers.get(event.type);
         for (const handler of handlers) {
           if (handler.predicate(event)) {
             handler.handler(event);
