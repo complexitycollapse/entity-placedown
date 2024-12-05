@@ -1,4 +1,4 @@
-import {ListMap} from "../common/utils.js";
+import {ListMap, removeItem} from "../common/utils.js";
 
 const componentTypes = [];
 const eventHandlers = ListMap();
@@ -73,6 +73,7 @@ const Entity = (document, initFn) => {
   let obj = {
     id: ++document.ids, // Unique ID (unique within the Document only)
     components: new ListMap(), // The components for this entity
+    subscribers: [],
 
     /**
      * Reference to the parent Document object.
@@ -107,7 +108,10 @@ const Entity = (document, initFn) => {
      */
     getAll: name => {
       return obj.components.get(name);
-    }
+    },
+    subscribe: callback => obj.subscribers.push(callback),
+    unsubscribe: callback => removeItem(obj.subscribers, callback),
+    notify: () => obj.subscribers.forEach(callback => callback(obj))
   };
 
   document.entities.set(obj.id, obj); // Add the entity to the Document
@@ -142,6 +146,7 @@ export const registerComponentTypes = (...names) => componentTypes.push(...names
 export const Component = (componentType, initFn) => {
   let obj = {
     componentType,
+    entity: undefined,
 
     /**
      * Retrieves the ID of the entity to which this component is attached.
@@ -153,7 +158,11 @@ export const Component = (componentType, initFn) => {
      * Links the component to an entity.
      * @param {Object} entity - The entity to link.
      */
-    setEntity: entity => obj.entity = entity
+    setEntity: entity => obj.entity = entity,
+
+    subscribe: callback => obj.entity.subscribe(callback),
+    unsubscribe: callback => obj.entity.unsubscribe(callback),
+    notify: () => obj.entity.notify()
   };
 
   if (initFn) {

@@ -34,8 +34,14 @@ export const DownloaderComponent = pointer => {
   return Component("downloader", obj => {
     obj.pointer = pointer;
     obj.state = "created";
-    obj.notifyDownloadStarted = () => obj.state = "downloading";
-    obj.notifyDownloadSuccessful = () => obj.state = "complete";
+    obj.notifyDownloadStarted = () => {
+      obj.state = "downloading";
+      obj.notify();
+    }
+    obj.notifyDownloadSuccessful = () => {
+      obj.state = "complete";
+      obj.notify();
+    }
   })
 }
 

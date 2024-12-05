@@ -25,30 +25,6 @@ export function ComponentListComponent({ doc, componentType, elementToNode }) {
   );
 }
 
-export function LayerTreePropertyComponent({ layer, elementToNode, property }) {
-
-  property = property ?? "elements";
-
-  const subscriber = () => createSubscriber(
-    layer.subscribeToAdd,
-    layer.unsubscribeToAdd,
-    () => {
-      if (layer[property] instanceof Map) {
-        return [...layer[property].values()].map(elementToNode);
-      } else {
-        return layer[property].map(elementToNode);
-      }
-    });
-
-  const listData = useSubscriber(subscriber);
-
-  return (
-    <div>
-      <ElementListComponent listData={listData} />
-    </div>
-  );
-}
-
 function ElementListComponent({ listData }) {
 
   return (
