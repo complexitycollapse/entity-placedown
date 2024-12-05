@@ -17,8 +17,8 @@ export default function TabsComponent() {
   return (
     <StrictMode>
         <div className="tab-bar">
-          <div id="downloads-tab" class="tab active" onClick={() => openTab("downloads-tab", 'downloads-panel')}>Downloads</div>
-          <div id="cache-tab" class="tab" onClick={() => openTab("cache-tab", 'cache-panel')}>Cache</div>
+          <div id="downloads-tab" className="tab active" onClick={() => openTab("downloads-tab", 'downloads-panel')}>Downloads</div>
+          <div id="cache-tab" className="tab" onClick={() => openTab("cache-tab", 'cache-panel')}>Cache</div>
         </div>
         <div id="downloads-panel" className="panel">
           <h1>Downloads</h1>
