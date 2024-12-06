@@ -7,7 +7,7 @@ const componentSubscribers = ListMap();
 
 // TODO: handle remove/update too
 registerEventHandler("add component", () => true, event => {
-  let callbacks = componentSubscribers.get(event.component.componentName);
+  let callbacks = componentSubscribers.get(event.component.componentType);
   callbacks.forEach(c => c());
 });
 

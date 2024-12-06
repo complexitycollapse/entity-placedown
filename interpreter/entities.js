@@ -29,7 +29,10 @@ export const Document = () => {
      * Queues an event for processing.
      * @param {Object} event - The event object.
      */
-    queueEvent: event => {
+    queueEvent: (type, data) => {
+      const event = {...data};
+      event.type = type;
+      event.doc = obj;
       obj.eventQueue.push(event);
       if (obj.eventQueuedCallback) {
         obj.eventQueuedCallback();
@@ -58,8 +61,7 @@ export const Document = () => {
         for (const handler of handlers) {
           if (handler.predicate(event)) {
             handler.handler(event);
-            break;
-          }
+           }
         }
       }
     }
@@ -197,7 +199,7 @@ const ComponentRegistry = (document, componentTypeName) => {
      */
     add: component => {
       obj.components.push(component);
-      document.queueEvent({type: "add component", component: component, entity: obj});
+      document.queueEvent("add component", { component: component, entity: obj});
     }
   };
 

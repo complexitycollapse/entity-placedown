@@ -1,15 +1,18 @@
 import { StrictMode, useState } from 'react'
 import { Document } from "../interpreter/entities.js";
 import CacheListComponent from './cache-list-component';
-import { DownloaderComponent, eventLoop, openTab } from '../window/window';
+import { EdlComponent, eventLoop, openTab } from '../window/window';
 import { ComponentListComponent } from './component-list-component.jsx';
+import { DownloaderComponent } from '../interpreter/components/downloader.js';
 
 export default function TabsComponent() {
 
   const [doc] = useState(() => {
     const doc = Document();
-    doc.add(obj => {
-      obj.add(DownloaderComponent({ type:"edl", origin: "example-edl.json" }));
+    doc.add(entity => {
+      const pointer = { type:"edl", origin: "example-edl.json" };
+      entity.add(EdlComponent(pointer));
+      entity.add(DownloaderComponent(pointer));
     });
     eventLoop(doc);
     return doc;

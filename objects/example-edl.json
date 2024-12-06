@@ -1,7 +1,8 @@
 {
   "type": "example",
   "clips": [
-    { "leafType": "span", "start": 0, "length": 10 }
+    { "leafType": "span", "origin":"content", "start": 0, "length": 10 },
+    { "leafType": "edl", "origin": "edl-with-class.json"}
   ],
   "links": [
     { "leafType": "link pointer", "origin": "example-link.json" }
