@@ -15,6 +15,7 @@ export const Document = () => {
     components: {}, // Component registries for each type of component
     eventQueue: [], // Unprocessed events (push to queue, shift to unqueue)
     eventQueuedCallback: undefined, // Called when an empty queue has an item again
+    eventLog: undefined,
 
     /**
      * Adds a new entity to the Document.
@@ -23,7 +24,8 @@ export const Document = () => {
      */
     add: initFn => Entity(obj, initFn),
 
-    getComponents: type => obj.components[type].components,
+    getComponents: type => obj.getComponentRegistry(type).components,
+    getComponentRegistry: type => obj.components[type],
 
     /**
      * Queues an event for processing.
@@ -32,7 +34,7 @@ export const Document = () => {
     queueEvent: (type, data) => {
       const event = {...data};
       event.type = type;
-      event.doc = obj;
+      Object.defineProperty(event,'doc',{enumerable: false, value: obj});
       obj.eventQueue.push(event);
       if (obj.eventQueuedCallback) {
         obj.eventQueuedCallback();
@@ -57,6 +59,7 @@ export const Document = () => {
     processNextEvent: () => {
       const event = obj.eventQueue.shift();
       if (event) {
+        obj.eventLog?.push(event);
         const handlers = eventHandlers.get(event.type);
         for (const handler of handlers) {
           if (handler.predicate(event)) {
@@ -69,6 +72,9 @@ export const Document = () => {
 
   // Initialize registries for all registered component types.
   componentTypes.forEach(name => obj.components[name] = ComponentRegistry(obj, name));
+  obj.components["event log"].suppressEvents = true;
+
+  obj.eventLog = EventLog(obj);
 
   return obj;
 };
@@ -80,16 +86,23 @@ export const Document = () => {
  * @returns {Object} The created Entity object.
  */
 const Entity = (document, initFn) => {
-  let obj = {
-    id: ++document.ids, // Unique ID (unique within the Document only)
-    components: new ListMap(), // The components for this entity
-    subscribers: [],
+  let obj = {};
 
+  Object.defineProperty(obj,'document',{
+    enumerable: false,
     /**
      * Reference to the parent Document object.
      * @returns {Object} The Document object.
      */
-    get document() { return document; },
+    get() {
+      return document;
+    }
+  });
+
+  Object.assign(obj, {
+    id: ++document.ids, // Unique ID (unique within the Document only)
+    components: new ListMap(), // The components for this entity
+    subscribers: [],
 
     /**
      * Adds a new component to the entity.
@@ -122,7 +135,7 @@ const Entity = (document, initFn) => {
     subscribe: callback => obj.subscribers.push(callback),
     unsubscribe: callback => removeItem(obj.subscribers, callback),
     notify: () => obj.subscribers.forEach(callback => callback(obj))
-  };
+  });
 
   document.entities.set(obj.id, obj); // Add the entity to the Document
 
@@ -154,9 +167,9 @@ export const registerComponentTypes = (...names) => componentTypes.push(...names
  * @returns {Object} The created Component object.
  */
 export const Component = (componentType, initFn) => {
+  let entityPrivate;
   let obj = {
     componentType,
-    entity: undefined,
 
     /**
      * Retrieves the ID of the entity to which this component is attached.
@@ -168,12 +181,14 @@ export const Component = (componentType, initFn) => {
      * Links the component to an entity.
      * @param {Object} entity - The entity to link.
      */
-    setEntity: entity => obj.entity = entity,
+    setEntity: entity => entityPrivate = entity,
 
     subscribe: callback => obj.entity.subscribe(callback),
     unsubscribe: callback => obj.entity.unsubscribe(callback),
     notify: () => obj.entity.notify()
   };
+
+  Object.defineProperty(obj, "entity", { enumerable: false, get() { return entityPrivate; }});
 
   if (initFn) {
     const initProperties = initFn(obj);
@@ -193,6 +208,7 @@ const ComponentRegistry = (document, componentTypeName) => {
   let obj = {
     componentTypeName,
     components: [],
+    suppressEvents: false,
 
     /**
      * Adds a component to the registry and queues an event in the Document.
@@ -200,9 +216,29 @@ const ComponentRegistry = (document, componentTypeName) => {
      */
     add: component => {
       obj.components.push(component);
-      document.queueEvent("add component", { component: component, entity: obj});
+      if (!obj.suppressEvents) {
+        document.queueEvent("add component", { component: component, entity: component.entity});
+      }
     }
   };
 
   return obj;
 };
+
+export function EventLog(doc) {
+  const component = Component("event log", obj => ({
+    seq: 0,
+    log: [],
+    push(event) {
+      obj.log.push([obj.seq++, event]);
+      obj.notify();
+    }
+  }));
+
+  const eventLog = doc.add(eventLog => {
+    eventLog.add(component);
+  });
+  eventLog.push = component.push;
+  eventLog.getLog = () => component.log;
+  return eventLog;
+}

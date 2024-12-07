@@ -11,7 +11,7 @@ export function openTab(tab, panel) {
   document.getElementById(tab).classList.add("active");
 }
 
-registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "root", "context");
+registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "root", "context", "event log");
 
 export const EdlComponent = edlPointer => {
   return Component("edl", () => ({

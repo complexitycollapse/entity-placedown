@@ -3,7 +3,7 @@ import { Document } from "../interpreter/entities.js";
 import CacheListComponent from './cache-list-component';
 import { DocumentRoot, eventLoop, openTab } from '../window/window';
 import { ComponentListComponent } from './component-list-component.jsx';
-import { DownloaderComponent } from '../interpreter/components/downloader.js';
+import { EventLogComponent } from './event-log-component.jsx';
 
 export default function TabsComponent() {
 
@@ -20,6 +20,7 @@ export default function TabsComponent() {
         <div className="tab-bar">
           <div id="downloads-tab" className="tab active" onClick={() => openTab("downloads-tab", 'downloads-panel')}>Downloads</div>
           <div id="cache-tab" className="tab" onClick={() => openTab("cache-tab", 'cache-panel')}>Cache</div>
+          <div id="events-tab" className="tab" onClick={() => openTab("events-tab", 'events-panel')}>Event Log</div>
         </div>
         <div id="downloads-panel" className="panel">
           <h1>Downloads</h1>
@@ -27,6 +28,9 @@ export default function TabsComponent() {
         </div>
         <div id="cache-panel" className="panel hidden">
           <CacheListComponent/>
+        </div>
+        <div id="events-panel" className="panel hidden">
+          <EventLogComponent doc={doc}/>
         </div>
     </StrictMode>
   );
