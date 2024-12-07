@@ -1,5 +1,5 @@
 import getCache from "../../auxiliary/cache";
-import { ClipComponent, EdlComponent, LinkComponent } from "../../window/window";
+import { ClipComponent, ContextComponent, EdlComponent, LinkComponent } from "../../window/window";
 import { Component, registerEventHandler } from "../entities";
 
 /**
@@ -34,8 +34,10 @@ registerEventHandler("add component", event => event.component.componentType ===
 });
 
 registerEventHandler("content downloaded", () => true, event => {
+
   event.downloader.notifyDownloadSuccessful();
 
+  // We have downloaded an edl. Download children if requested.
   const edlComponent = event.downloader.entity.get("edl");
   if (edlComponent) {
     edlComponent.edl = JSON.parse(event.content); // TODO: parsing should be done in the cache
@@ -44,26 +46,27 @@ registerEventHandler("content downloaded", () => true, event => {
     }
   }
 
+  // We have downloaded a link. Download its type or metalinks if necessary.
   const linkComponent = event.downloader.entity.get("link");
   if (linkComponent) {
 
     const link = JSON.parse(event.content); // TODO: parsing should be done in the cache
     linkComponent.link = link;
 
+    // If the type is a link pointer, get the type link.
     if (event.downloader.goal === "document" || event.downloader.goal === "link") {
       if (isLinkType(link.type)) {
-        event.doc.add(type => {
-          type.add(LinkComponent(link.type));
-          type.add(DownloaderComponent(link.type, "type"));
-        });
+        addTypeEntity(event.doc, link.type, event.downloader.entity);
       }
     }
 
+    // If the link is itself a type, get its metalinks.
     if (event.downloader.goal === "type") {
-      downloadMetalinks(event.doc, link);
+      downloadMetalinks(event.doc, link, event.downloader.entity);
     }
   }
 
+  // We have downloaded a clip.
   const clipComponent = event.downloader.entity.get("clip");
   if (clipComponent) {
     clipComponent.content = event.content;
@@ -75,12 +78,10 @@ const isLinkType = type =>
 
 function downloadEdlContents(doc, edlComponent) {
   const edl = edlComponent.edl;
+  const parent = edlComponent.entity;
 
   if (isLinkType(edl.type)) {
-    doc.add(type => {
-      type.add(LinkComponent(edl.type));
-      type.add(DownloaderComponent(edl.type, "type"));
-    });
+    addTypeEntity(doc, edl.type, edlComponent.entity);
   }
 
   edlComponent.clips = new Array(edl.clips.length);
@@ -92,9 +93,11 @@ function downloadEdlContents(doc, edlComponent) {
       if (clipPointer.leafType === "edl") {
         clip.add(EdlComponent(clipPointer));
         clip.add(DownloaderComponent(clipPointer, "document"));
+        clip.add(ContextComponent({ parent }));
       } else {
         clip.add(ClipComponent(clipPointer,));
         clip.add(DownloaderComponent(clipPointer, "document"));
+        clip.add(ContextComponent({ parent }));
       }
 
       edlComponent.clips[index] = clip;
@@ -106,19 +109,29 @@ function downloadEdlContents(doc, edlComponent) {
 
       link.add(LinkComponent(linkPointer));
       link.add(DownloaderComponent(linkPointer, "document"));
+      link.add(ContextComponent({ parent }));
 
       edlComponent.links[index] = link;
     });
   });
 }
 
-function downloadMetalinks(doc, link) {
+function downloadMetalinks(doc, link, isMetalinkFor) {
   link.ends.filter(e => e.name === "metalink").forEach(end => {
     end.pointers.filter(p => p.leafType === "link pointer").forEach(metalinkPointer => {
       doc.add(metalink => {
         metalink.add(LinkComponent(metalinkPointer));
         metalink.add(DownloaderComponent(metalinkPointer, "link"));
+        metalink.add(ContextComponent({ isMetalinkFor }));
       });
     });
   });
+}
+
+function addTypeEntity(doc, typePointer, isTypeFor) {
+  doc.add(entity => {
+    entity.add(LinkComponent(typePointer));
+    entity.add(DownloaderComponent(typePointer, "type"));
+    entity.add(ContextComponent({ isTypeFor }));
+  })
 }

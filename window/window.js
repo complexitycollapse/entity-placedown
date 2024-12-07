@@ -40,14 +40,17 @@ export function DocumentRoot(doc, pointer) {
     obj.add(DownloaderComponent(pointer, "document"));
     obj.add(VisualComponent());
     obj.add(Component("root"));
-    obj.add(ContextComponent(undefined));
+    obj.add(ContextComponent({ isRoot: true }));
   });
 };
 
-export function ContextComponent(parent) {
-  return Component("context", () => ({
-    parent
-  }));
+/**
+ * 
+ * @param {*} propertiesObject { parent, typeFor, isMetalinkFor, isRoot }
+ * @returns 
+ */
+export function ContextComponent(propertiesObject) {
+  return Component("context", () => propertiesObject);
 }
 
 // Crude event loop
