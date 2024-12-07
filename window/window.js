@@ -14,32 +14,24 @@ export function openTab(tab, panel) {
 registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "root", "context");
 
 export const EdlComponent = edlPointer => {
-  return Component("edl", obj => {
-    obj.pointer = edlPointer;
-    obj.edl = undefined;
-    obj.links = [];
-    obj.clips = [];
-  });
+  return Component("edl", () => ({
+    pointer: edlPointer,
+    edl: undefined,
+    links: [],
+    clips: []
+  }));
 }
 
 export function VisualComponent() {
-  return Component("visual", obj => {
-    obj.children = [];
-  });
+  return Component("visual", () => ({ children: [] }));
 };
 
 export function ClipComponent(pointer) {
-  return Component("clip", obj => {
-    obj.pointer = pointer;
-    obj.content = undefined;
-  });
+  return Component("clip", () => ({ pointer, content: undefined}));
 }
 
 export function LinkComponent(pointer) {
-  return Component("link", obj => {
-    obj.pointer = pointer;
-    obj.link = undefined;
-  });
+  return Component("link", () => ({ pointer, link: undefined }));
 }
 
 export function DocumentRoot(doc, pointer) {
@@ -53,9 +45,9 @@ export function DocumentRoot(doc, pointer) {
 };
 
 export function ContextComponent(parent) {
-  return Component("context", obj => {
-    obj.parent = parent;
-  });
+  return Component("context", () => ({
+    parent
+  }));
 }
 
 // Crude event loop

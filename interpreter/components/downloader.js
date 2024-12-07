@@ -9,19 +9,19 @@ import { Component, registerEventHandler } from "../entities";
  * @returns 
  */
 export function DownloaderComponent(pointer, goal) {
-  return Component("downloader", obj => {
-    obj.pointer = pointer;
-    obj.state = "created";
-    obj.goal = goal;
-    obj.notifyDownloadStarted = () => {
+  return Component("downloader", obj => ({
+    pointer,
+    state: "created",
+    goal,
+    notifyDownloadStarted() {
       obj.state = "downloading";
       obj.notify();
-    }
-    obj.notifyDownloadSuccessful = () => {
+    },
+    notifyDownloadSuccessful() {
       obj.state = "complete";
       obj.notify();
     }
-  })
+  }));
 }
 
 registerEventHandler("add component", event => event.component.componentType === "downloader", event => {
@@ -46,7 +46,7 @@ registerEventHandler("content downloaded", () => true, event => {
 
   const linkComponent = event.downloader.entity.get("link");
   if (linkComponent) {
-    
+
     const link = JSON.parse(event.content); // TODO: parsing should be done in the cache
     linkComponent.link = link;
 

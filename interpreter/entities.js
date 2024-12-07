@@ -176,7 +176,8 @@ export const Component = (componentType, initFn) => {
   };
 
   if (initFn) {
-    initFn(obj);
+    const initProperties = initFn(obj);
+    Object.assign(obj, initProperties);
   }
 
   return obj;
