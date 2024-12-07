@@ -1,5 +1,6 @@
 import { registerComponentTypes, Component, Document } from "../interpreter/entities";
 import { initCache } from "../auxiliary/cache";
+import { DownloaderComponent } from "../interpreter/components/downloader";
 
 initCache(electron, true);
 
@@ -10,7 +11,7 @@ export function openTab(tab, panel) {
   document.getElementById(tab).classList.add("active");
 }
 
-registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "content", "root");
+registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "root", "context");
 
 export const EdlComponent = edlPointer => {
   return Component("edl", obj => {
@@ -22,9 +23,9 @@ export const EdlComponent = edlPointer => {
 }
 
 export function VisualComponent() {
-  return {
-    children: []
-  }
+  return Component("visual", obj => {
+    obj.children = [];
+  });
 };
 
 export function ClipComponent(pointer) {
@@ -41,14 +42,21 @@ export function LinkComponent(pointer) {
   });
 }
 
-export function DocumentRoot(pointer) {
-  return document.add(obj => {
+export function DocumentRoot(doc, pointer) {
+  return doc.add(obj => {
     obj.add(EdlComponent(pointer));
-    obj.add(DownloaderComponent(pointer));
+    obj.add(DownloaderComponent(pointer, "document"));
     obj.add(VisualComponent());
     obj.add(Component("root"));
+    obj.add(ContextComponent(undefined));
   });
 };
+
+export function ContextComponent(parent) {
+  return Component("context", obj => {
+    obj.parent = parent;
+  });
+}
 
 // Crude event loop
 export async function eventLoop(doc) {

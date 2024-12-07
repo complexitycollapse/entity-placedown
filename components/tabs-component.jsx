@@ -1,19 +1,16 @@
 import { StrictMode, useState } from 'react'
 import { Document } from "../interpreter/entities.js";
 import CacheListComponent from './cache-list-component';
-import { EdlComponent, eventLoop, openTab } from '../window/window';
+import { DocumentRoot, eventLoop, openTab } from '../window/window';
 import { ComponentListComponent } from './component-list-component.jsx';
 import { DownloaderComponent } from '../interpreter/components/downloader.js';
 
 export default function TabsComponent() {
 
   const [doc] = useState(() => {
+    const pointer = { type:"edl", origin: "example-edl.json" };
     const doc = Document();
-    doc.add(entity => {
-      const pointer = { type:"edl", origin: "example-edl.json" };
-      entity.add(EdlComponent(pointer));
-      entity.add(DownloaderComponent(pointer));
-    });
+    DocumentRoot(doc, pointer);
     eventLoop(doc);
     return doc;
   });
@@ -40,8 +37,11 @@ function downloaderToNode(component) {
     key: component.entity.id,
     element: component,
     formatter: () => ({
-      label: component.entity.id + " (" + JSON.stringify(component.pointer) + ")",
+      label: component.entity.id
+      + " (" + JSON.stringify(component.pointer) + ")"
+      + (component.state === "complete" ? " ✓" : ""),
       children: [
+        property(component, "goal"),
         property(component, "state")
       ]
     })
