@@ -1,5 +1,5 @@
 import getCache from "../../auxiliary/cache";
-import { SpanComponent, ContextComponent, EdlComponent, LinkComponent, ClipComponent } from "../../window/window";
+import { SpanComponent, ElementComponent, EdlComponent, LinkComponent, ClipComponent } from "../../window/window";
 import { Component, registerEventHandler } from "../entities";
 
 /**
@@ -94,15 +94,16 @@ function downloadEdlContents(doc, edlComponent) {
     doc.add(clip => {
 
       if (clipPointer.leafType === "edl") {
-        clip.add(EdlComponent(clipPointer));
+        clip.add(ElementComponent(clipPointer, { parent }));
+        clip.add(EdlComponent());
         clip.add(DownloaderComponent(clipPointer, "document"));
-        clip.add(ContextComponent({ parent }));
       } else if (clipPointer.leafType === "span") {
-        const clipComponent = ClipComponent(clipPointer);
+        const elementComponent = ElementComponent(clipPointer, { parent });
+        const clipComponent = ClipComponent();
+        clip.add(elementComponent);
         clip.add(clipComponent);
-        clip.add(SpanComponent(clipComponent));
+        clip.add(SpanComponent(elementComponent, clipComponent));
         clip.add(DownloaderComponent(clipPointer, "document"));
-        clip.add(ContextComponent({ parent }));
       }
 
       edlComponent.clips[index] = clip;
@@ -112,9 +113,9 @@ function downloadEdlContents(doc, edlComponent) {
   edl.links.forEach((linkPointer, index) => {
     doc.add(link => {
 
-      link.add(LinkComponent(linkPointer));
+      link.add(ElementComponent(linkPointer, { parent }));
+      link.add(LinkComponent());
       link.add(DownloaderComponent(linkPointer, "document"));
-      link.add(ContextComponent({ parent }));
 
       edlComponent.links[index] = link;
     });
@@ -125,9 +126,9 @@ function downloadMetalinks(doc, link, isMetalinkFor) {
   link.ends.filter(e => e.name === "metalink").forEach(end => {
     end.pointers.filter(p => p.leafType === "link pointer").forEach(metalinkPointer => {
       doc.add(metalink => {
-        metalink.add(LinkComponent(metalinkPointer));
+        metalink.add(ElementComponent(metalinkPointer, { isMetalinkFor }));
+        metalink.add(LinkComponent());
         metalink.add(DownloaderComponent(metalinkPointer, "link"));
-        metalink.add(ContextComponent({ isMetalinkFor }));
       });
     });
   });
@@ -135,8 +136,8 @@ function downloadMetalinks(doc, link, isMetalinkFor) {
 
 function addTypeEntity(doc, typePointer, isTypeFor) {
   doc.add(entity => {
-    entity.add(LinkComponent(typePointer));
+    entity.add(ElementComponent(typePointer, { isTypeFor }));
+    entity.add(LinkComponent());
     entity.add(DownloaderComponent(typePointer, "type"));
-    entity.add(ContextComponent({ isTypeFor }));
   })
 }
