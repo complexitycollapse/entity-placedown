@@ -4,13 +4,6 @@ import { DownloaderComponent } from "../interpreter/components/downloader";
 
 initCache(electron, true);
 
-export function openTab(tab, panel) {
-  [...document.getElementsByClassName("panel")].forEach(tab => tab.classList.add("hidden"));
-  [...document.getElementsByClassName("tab")].forEach(tab => tab.classList.remove("active"));
-  document.getElementById(panel).classList.remove("hidden");
-  document.getElementById(tab).classList.add("active");
-}
-
 registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "span", "root", "context", "event log");
 
 export const EdlComponent = edlPointer => {

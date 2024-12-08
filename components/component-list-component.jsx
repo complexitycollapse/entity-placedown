@@ -3,16 +3,17 @@ import { createSubscriber } from "../common/use-subscriber";
 import { useState } from 'react';
 import { subscribeToComponentUpdates, unsubscribeToComponentUpdates, getComponentSnapshot } from "../interpreter/subscribe";
 import useEntitySubcription from "../ui/use-entity-subscriber";
+import { getComponentFormatter } from "../ui/component-formatters";
 
 // Node form: key, element, formatter
 
-export function ComponentListComponent({ doc, componentType, elementToNode }) {
+export function ComponentListComponent({ doc, componentType }) {
 
   const subscriber = () => createSubscriber(
     callback => subscribeToComponentUpdates(componentType, callback),
     callback => unsubscribeToComponentUpdates(componentType, callback),
     () => {
-      return getComponentSnapshot(doc, componentType).map(elementToNode);
+      return getComponentSnapshot(doc, componentType).map(getComponentFormatter(componentType));
     });
 
   const listData = useSubscriber(subscriber);
