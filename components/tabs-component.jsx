@@ -4,6 +4,7 @@ import CacheListComponent from './cache-list-component';
 import { DocumentRoot, eventLoop, openTab } from '../window/window';
 import { ComponentListComponent } from './component-list-component.jsx';
 import { EventLogComponent } from './event-log-component.jsx';
+import { DocumentComponent } from './document-component.jsx';
 
 export default function TabsComponent() {
 
@@ -18,9 +19,13 @@ export default function TabsComponent() {
   return (
     <StrictMode>
         <div className="tab-bar">
+          <div id="editor-tab" className="tab" onClick={() => openTab("editor-tab", 'editor-panel')}>Editor</div>
           <div id="downloads-tab" className="tab active" onClick={() => openTab("downloads-tab", 'downloads-panel')}>Downloads</div>
           <div id="cache-tab" className="tab" onClick={() => openTab("cache-tab", 'cache-panel')}>Cache</div>
           <div id="events-tab" className="tab" onClick={() => openTab("events-tab", 'events-panel')}>Event Log</div>
+        </div>
+        <div id="editor-panel" className="panel hidden">
+          <DocumentComponent doc={doc}/>
         </div>
         <div id="downloads-panel" className="panel">
           <h1>Downloads</h1>

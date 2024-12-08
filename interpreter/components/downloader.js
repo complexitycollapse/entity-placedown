@@ -1,5 +1,5 @@
 import getCache from "../../auxiliary/cache";
-import { ClipComponent, ContextComponent, EdlComponent, LinkComponent } from "../../window/window";
+import { SpanComponent, ContextComponent, EdlComponent, LinkComponent, ClipComponent } from "../../window/window";
 import { Component, registerEventHandler } from "../entities";
 
 /**
@@ -9,7 +9,7 @@ import { Component, registerEventHandler } from "../entities";
  * @returns 
  */
 export function DownloaderComponent(pointer, goal) {
-  return Component("downloader", obj => ({
+  return Component("downloader", obj => Object.assign(obj, {
     pointer,
     state: "created",
     goal,
@@ -71,6 +71,9 @@ registerEventHandler("content downloaded", () => true, event => {
   if (clipComponent) {
     clipComponent.content = event.content;
   }
+
+  event.doc.queueEvent("entity loaded", { entity: event.downloader.entity });
+  event.downloader.entity.notify(); // TODO don't use entity.notify() to signal to the ui. Raise some special event for external consumption.
 });
 
 const isLinkType = type => 
@@ -94,8 +97,10 @@ function downloadEdlContents(doc, edlComponent) {
         clip.add(EdlComponent(clipPointer));
         clip.add(DownloaderComponent(clipPointer, "document"));
         clip.add(ContextComponent({ parent }));
-      } else {
-        clip.add(ClipComponent(clipPointer,));
+      } else if (clipPointer.leafType === "span") {
+        const clipComponent = ClipComponent(clipPointer);
+        clip.add(clipComponent);
+        clip.add(SpanComponent(clipComponent));
         clip.add(DownloaderComponent(clipPointer, "document"));
         clip.add(ContextComponent({ parent }));
       }

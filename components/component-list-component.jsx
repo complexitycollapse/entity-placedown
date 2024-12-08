@@ -2,6 +2,7 @@ import useSubscriber from "../common/use-subscriber";
 import { createSubscriber } from "../common/use-subscriber";
 import { useState } from 'react';
 import { subscribeToComponentUpdates, unsubscribeToComponentUpdates, getComponentSnapshot } from "../interpreter/subscribe";
+import useEntitySubcription from "../ui/use-entity-subscriber";
 
 // Node form: key, element, formatter
 
@@ -35,14 +36,9 @@ function ElementListComponent({ listData }) {
     </ul>
   );
 }
-
 function ElementNodeComponent({ node }) {
-  const subscriber = () => createSubscriber(
-    node.element.subscribe,
-    node.element.unsubscribe,
-    () => node.formatter(node.element));
 
-  const { label, value, children } = useSubscriber(subscriber);
+  const { label, value, children } = useEntitySubcription(node.element, () => node.formatter(node.element));
 
   const [showChildren, setShowChildren] = useState(node.expanded);
 

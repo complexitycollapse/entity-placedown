@@ -11,10 +11,10 @@ export function openTab(tab, panel) {
   document.getElementById(tab).classList.add("active");
 }
 
-registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "root", "context", "event log");
+registerComponentTypes("visual", "document", "downloader", "edl", "link", "clip", "span", "root", "context", "event log");
 
 export const EdlComponent = edlPointer => {
-  return Component("edl", () => ({
+  return Component("edl", obj => Object.assign(obj, {
     pointer: edlPointer,
     edl: undefined,
     links: [],
@@ -23,15 +23,27 @@ export const EdlComponent = edlPointer => {
 }
 
 export function VisualComponent() {
-  return Component("visual", () => ({ children: [] }));
+  return Component("visual", obj => Object.assign(obj, { children: [] }));
 };
 
 export function ClipComponent(pointer) {
-  return Component("clip", () => ({ pointer, content: undefined}));
+  return Component("clip", obj => Object.assign(obj, {
+    pointer,
+    content: undefined,
+  }));
+}
+
+export function SpanComponent(clipComponent) {
+  return Component("span", obj => {
+    Object.defineProperty(obj, "clippedContent", {get() {
+      const pointer = clipComponent.pointer;
+      return clipComponent.content?.substring(pointer.start, pointer.start + pointer.length) ?? "";
+    }});
+  });
 }
 
 export function LinkComponent(pointer) {
-  return Component("link", () => ({ pointer, link: undefined }));
+  return Component("link", obj => Object.assign(obj, { pointer, link: undefined }));
 }
 
 export function DocumentRoot(doc, pointer) {
@@ -50,7 +62,7 @@ export function DocumentRoot(doc, pointer) {
  * @returns 
  */
 export function ContextComponent(propertiesObject) {
-  return Component("context", () => propertiesObject);
+  return Component("context", obj => Object.assign(obj, propertiesObject));
 }
 
 // Crude event loop

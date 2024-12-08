@@ -191,8 +191,7 @@ export const Component = (componentType, initFn) => {
   Object.defineProperty(obj, "entity", { enumerable: false, get() { return entityPrivate; }});
 
   if (initFn) {
-    const initProperties = initFn(obj);
-    Object.assign(obj, initProperties);
+    initFn(obj);
   }
 
   return obj;
@@ -226,7 +225,7 @@ const ComponentRegistry = (document, componentTypeName) => {
 };
 
 export function EventLog(doc) {
-  const component = Component("event log", obj => ({
+  const component = Component("event log", obj => Object.assign(obj, {
     seq: 0,
     log: [],
     push(event) {
