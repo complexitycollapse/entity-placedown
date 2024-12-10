@@ -1,10 +1,12 @@
 import { registerComponentTypes, Component } from "../interpreter/entities";
 import { initCache } from "../auxiliary/cache";
 import { DownloaderComponent } from "../interpreter/components/downloader";
+// TODO This import is just to get the module to load. Need a better way.
+import * as meshpoint from "../interpreter/components/meshpoint";
 
 initCache(electron, true);
 
-registerComponentTypes("visual", "downloader", "edl", "link", "clip", "span", "root", "element", "event log");
+registerComponentTypes("visual", "downloader", "edl", "link", "clip", "span", "root", "element", "event log", "meshpoint");
 
 export const EdlComponent = () => {
   return Component("edl", obj => Object.assign(obj, {

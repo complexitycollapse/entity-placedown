@@ -17,5 +17,6 @@ export default function Span(origin, start, length) {
 }
 
 function overlapping(s1, s2) {
+  // This doesn't work!
   return !(s2.end < s1.start && s1.start < s2.end);
 }

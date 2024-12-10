@@ -20,7 +20,7 @@ export default function TabsComponent() {
     <StrictMode>
         <div className="tab-bar">
           <div id="editor-tab" className="tab active" onClick={() => openTab("editor-tab", "editor-panel")}>Editor</div>
-          <div id="components-tab" className="tab" onClick={() => openTab("components-tab", "components-panel")}>Downloads</div>
+          <div id="components-tab" className="tab" onClick={() => openTab("components-tab", "components-panel")}>Components</div>
           <div id="cache-tab" className="tab" onClick={() => openTab("cache-tab", "cache-panel")}>Cache</div>
           <div id="events-tab" className="tab" onClick={() => openTab("events-tab", "events-panel")}>Event Log</div>
         </div>

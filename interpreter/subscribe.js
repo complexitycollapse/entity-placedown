@@ -20,5 +20,7 @@ export function unsubscribeToComponentUpdates(componentType, callback) {
 }
 
 export function getComponentSnapshot(doc, componentType) {
-  return doc.getComponents(componentType);
+  const snapshot = doc.getComponents(componentType);
+  snapshot.sort((a, b) => a.entityId - b.entityId);
+  return snapshot;
 }
