@@ -6,14 +6,18 @@ import * as meshpoint from "../interpreter/components/meshpoint";
 
 initCache(electron, true);
 
-registerComponentTypes("visual", "downloader", "edl", "link", "clip", "span", "root", "element", "event log", "meshpoint");
+registerComponentTypes("visual", "downloader", "edl", "link", "clip", "span", "root", "element", "event log", "meshpoint", "type");
 
 export const EdlComponent = () => {
-  return Component("edl", obj => Object.assign(obj, {
-    edl: undefined,
-    links: [],
-    clips: []
-  }));
+  return Component("edl", obj => {
+    obj.edl = undefined;
+    obj.type = undefined;
+    obj.links = [];
+    obj.clips = [];
+    Object.defineProperty(obj, "typeRef", { get () {
+      return obj.edl.type;
+    }});
+  });
 }
 
 export function VisualComponent() {
@@ -28,7 +32,7 @@ export function ClipComponent() {
 
 export function SpanComponent(elementComponent, clipComponent) {
   return Component("span", obj => {
-    Object.defineProperty(obj, "clippedContent", {get() {
+    Object.defineProperty(obj, "clippedContent", { get() {
       const pointer = elementComponent.pointer;
       return clipComponent.content?.substring(pointer.start, pointer.start + pointer.length) ?? "";
     }});
@@ -36,7 +40,13 @@ export function SpanComponent(elementComponent, clipComponent) {
 }
 
 export function LinkComponent() {
-  return Component("link", obj => Object.assign(obj, { link: undefined }));
+  return Component("link", obj => {
+    obj.link = undefined;
+    obj.type = undefined;
+    Object.defineProperty(obj, "typeRef", { get () {
+      return obj.link.type;
+    }});
+  });
 }
 
 export function DocumentRoot(doc, pointer) {
@@ -52,7 +62,7 @@ export function DocumentRoot(doc, pointer) {
 /**
  * 
  * @param {*} pointer
- * @param {*} propertiesObject { parent, typeFor, isMetalinkFor, isRoot }
+ * @param {*} propertiesObject { parent, isType, isMetalinkFor, isRoot }
  * @returns 
  */
 export function ElementComponent(pointer, propertiesObject) {
