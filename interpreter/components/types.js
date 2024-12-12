@@ -45,7 +45,7 @@ export function assignType(doc, instanceComponent) {
 export function processMetalink(metalink) {
   const metalinkFor = metalink.get("element")?.metalinkFor;
   if (!metalinkFor) { return; }
-  metalinkFor.get("type").metalink.push(metalink);
+  metalinkFor.get("type").metalinks.push(metalink);
 }
 
 function TypeComponent(ref) {
@@ -62,7 +62,8 @@ function TypeComponent(ref) {
   return Component("type", obj => Object.assign(obj, {
     ref,
     refType,
-    instances: []
+    instances: [],
+    metalinks: []
   }));
 }
 

@@ -7,14 +7,14 @@ function downloaderToNode(component) {
       + " (" + JSON.stringify(component.pointer) + ")"
       + (component.state === "complete" ? " ✓" : ""),
       children: [
-        property(component, "goal"),
-        property(component, "state")
+        formatProperty(component, "goal"),
+        formatProperty(component, "state")
       ]
     })
   });
 }
 
-function property(obj, prop, formatter = v => v) {
+export function formatProperty(obj, prop, formatter = v => v) {
   return {
     key: prop,
     element: obj[prop],

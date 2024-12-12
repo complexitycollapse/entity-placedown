@@ -5,6 +5,7 @@ import { DocumentRoot, eventLoop } from '../window/window';
 import { ComponentListComponent } from './component-list-component.jsx';
 import { EventLogComponent } from './event-log-component.jsx';
 import { DocumentComponent } from './document-component.jsx';
+import { DocumentModelComponent } from './document-model-component.jsx';
 
 export default function TabsComponent() {
 
@@ -20,6 +21,7 @@ export default function TabsComponent() {
     <StrictMode>
         <div className="tab-bar">
           <div id="editor-tab" className="tab active" onClick={() => openTab("editor-tab", "editor-panel")}>Editor</div>
+          <div id="document-model-tab" className='tab' onClick={() => openTab("document-model-tab", "document-model-panel")}>Doc Model</div>
           <div id="components-tab" className="tab" onClick={() => openTab("components-tab", "components-panel")}>Components</div>
           <div id="cache-tab" className="tab" onClick={() => openTab("cache-tab", "cache-panel")}>Cache</div>
           <div id="events-tab" className="tab" onClick={() => openTab("events-tab", "events-panel")}>Event Log</div>
@@ -39,6 +41,9 @@ export default function TabsComponent() {
               <ComponentListComponent key={type} doc={doc} componentType={type} />
             </div>
           )}
+        </div>
+        <div id="document-model-panel" className="panel hidden">
+          <DocumentModelComponent doc={doc}/>
         </div>
         <div id="cache-panel" className="panel hidden">
           <CacheListComponent/>

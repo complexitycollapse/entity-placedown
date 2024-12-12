@@ -39,6 +39,24 @@ h1 {
   margin: 0 0.66em;
 }
 
+.debug-list {
+  padding-left: 0.3em;
+  margin-left: 0.3em;
+}
+
+.debug-list-item {
+  padding-left: 0.5em;
+}
+
+.debug-list-item > div {
+  margin-bottom: 0.5em;
+}
+
+.debug-list-item-value {
+  color: var(--text-color-subtle);
+  margin-left: 1rem;
+}
+
 .tab.active {
   background-color: var(--ui-background-color);
   color: var(--text-color-highlight);
