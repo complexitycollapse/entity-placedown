@@ -6,7 +6,18 @@ import * as meshpoint from "../interpreter/components/meshpoint";
 
 initCache(electron, true);
 
-registerComponentTypes("visual", "downloader", "edl", "link", "clip", "span", "root", "element", "event log", "meshpoint", "type");
+registerComponentTypes(
+  "clip",
+  "downloader",
+  "edl",
+  "element",
+  "event log",
+  "link",
+  "meshpoint",
+  "root",
+  "span",
+  "type",
+  "visual");
 
 export const EdlComponent = () => {
   return Component("edl", obj => {
