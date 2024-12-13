@@ -52,3 +52,17 @@ export function ListMap() {
     }
   };
 }
+
+export function createPrepopulatedArray(length, initialValueFn) {
+  const array = new Array(length);
+
+  if (initialValueFn) {
+    for (i = 0; i < length; ++i) {
+      array[i] = initialValueFn(i);
+    }
+  } else {
+    array.fill(undefined);
+  }
+  
+  return array;
+}

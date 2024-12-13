@@ -1,4 +1,5 @@
 import getCache from "../../auxiliary/cache";
+import { createPrepopulatedArray } from "../../common/utils";
 import { SpanComponent, ElementComponent, EdlComponent, LinkComponent, ClipComponent } from "../../window/window";
 import { Component, registerEventHandler } from "../entities";
 import { assignType, getMetalinks, notifyLinkTypeDownloaded, processMetalink } from "./types";
@@ -87,10 +88,8 @@ function downloadEdlContents(doc, edlComponent) {
   const edl = edlComponent.edl;
   const parent = edlComponent.entity;
 
-  edlComponent.clips = new Array(edl.clips.length);
-  edlComponent.clips.fill(undefined);
-  edlComponent.links = new Array(edl.links.length);
-  edlComponent.links.fill(undefined);
+  edlComponent.clips = createPrepopulatedArray(edl.clips.length);
+  edlComponent.links = createPrepopulatedArray(edl.links.length);
 
   edl.clips.forEach((clipPointer, index) => {
     doc.add(clip => {

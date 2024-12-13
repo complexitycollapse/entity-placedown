@@ -1,3 +1,4 @@
+import { createPrepopulatedArray } from "../../common/utils";
 import { ElementComponent, LinkComponent } from "../../window/window";
 import { Component } from "../entities";
 import { DownloaderComponent } from "./downloader";
@@ -61,8 +62,7 @@ export function processMetalink(doc, metalink) {
 export function notifyLinkTypeDownloaded(doc, typeEntity) {
   const typeComponent = typeEntity.get("type");
   const linkComponent = typeEntity.get("link");
-  typeComponent.metalinks = new Array(getMetalinks(linkComponent.link).length);
-  typeComponent.metalinks.fill(undefined);
+  typeComponent.metalinks = createPrepopulatedArray(getMetalinks(linkComponent.link).length);
   checkIfTypeHasBecomeReady(doc, typeEntity);
 }
 
