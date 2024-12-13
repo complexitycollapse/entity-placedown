@@ -1,7 +1,7 @@
 import getCache from "../../auxiliary/cache";
 import { SpanComponent, ElementComponent, EdlComponent, LinkComponent, ClipComponent } from "../../window/window";
 import { Component, registerEventHandler } from "../entities";
-import { assignType, processMetalink } from "./types";
+import { assignType, getMetalinks, notifyLinkTypeDownloaded, processMetalink } from "./types";
 
 /**
  * 
@@ -58,18 +58,19 @@ registerEventHandler("content downloaded", () => true, event => {
     const link = JSON.parse(event.content); // TODO: parsing should be done in the cache
     linkComponent.link = link;
 
-    // If the type is a link pointer, get the type link.
+    // Get the link's type.
     if (goal === "document" || goal === "link" || goal === "type") {
       assignType(event.doc, linkComponent);
     }
 
-    // If the link is itself a type, get its metalinks.
+    // If the link is itself a type, do extra processing.
     if (goal === "type") {
+      notifyLinkTypeDownloaded(event.doc,entity);
       downloadMetalinks(event.doc, link, entity);
     }
 
-    // The type module will decide if this is a metalink.
-    processMetalink(entity);
+    // Call this on all links. The type module will decide if this is a metalink.
+    processMetalink(event.doc, entity);
   }
 
   // We have downloaded a clip.
@@ -87,7 +88,9 @@ function downloadEdlContents(doc, edlComponent) {
   const parent = edlComponent.entity;
 
   edlComponent.clips = new Array(edl.clips.length);
+  edlComponent.clips.fill(undefined);
   edlComponent.links = new Array(edl.links.length);
+  edlComponent.links.fill(undefined);
 
   edl.clips.forEach((clipPointer, index) => {
     doc.add(clip => {
@@ -122,13 +125,13 @@ function downloadEdlContents(doc, edlComponent) {
 }
 
 function downloadMetalinks(doc, link, isMetalinkFor) {
-  link.ends.filter(e => e.name === "metalink").forEach(end => {
-    end.pointers.filter(p => p.leafType === "link pointer").forEach(metalinkPointer => {
-      doc.add(metalink => {
-        metalink.add(ElementComponent(metalinkPointer, { isMetalinkFor }));
-        metalink.add(LinkComponent());
-        metalink.add(DownloaderComponent(metalinkPointer, "link"));
-      });
+  const metalinks = getMetalinks(link);
+
+  metalinks.forEach((metalinkPointer, metalinkIndex) => {
+    doc.add(metalink => {
+      metalink.add(ElementComponent(metalinkPointer, { isMetalinkFor, metalinkIndex }));
+      metalink.add(LinkComponent());
+      metalink.add(DownloaderComponent(metalinkPointer, "link"));
     });
   });
 }

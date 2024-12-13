@@ -73,7 +73,7 @@ export function DocumentRoot(doc, pointer) {
 /**
  * 
  * @param {*} pointer
- * @param {*} propertiesObject { parent, isType, isMetalinkFor, isRoot }
+ * @param {*} propertiesObject { parent, isType, isMetalinkFor, metalinkIndex, isRoot }
  * @returns 
  */
 export function ElementComponent(pointer, propertiesObject) {

@@ -15,9 +15,12 @@ export function assignType(doc, instanceComponent) {
   // indexes on components.
   const existingTypeComponent = findType(doc, typeRef);
   if (existingTypeComponent) {
-    typeRef = existingTypeComponent.entity;
+    instanceComponent.type = existingTypeComponent.entity;
     existingTypeComponent.instances.push(instanceComponent.entity);
-    return existingTypeComponent.entity;
+    if (existingTypeComponent.ready) {
+      doc.queueEvent("type ready", { entity: instanceComponent.entity });
+    }
+    return;
   }
 
   // There is no entity for this type yet, so create one and initiate any
@@ -27,7 +30,7 @@ export function assignType(doc, instanceComponent) {
 
   if (typeRef === undefined || typeof typeRef === "string") {
     doc.add(entity => {
-      entity.add(newTypeComponent)
+      entity.add(newTypeComponent);
     });
   } else {
     doc.add(entity => {
@@ -40,12 +43,31 @@ export function assignType(doc, instanceComponent) {
 
   instanceComponent.type = newTypeComponent.entity;
   newTypeComponent.instances.push(instanceComponent.entity);
+  checkIfTypeHasBecomeReady(doc, newTypeComponent.entity);
 }
 
-export function processMetalink(metalink) {
-  const metalinkFor = metalink.get("element")?.metalinkFor;
-  if (!metalinkFor) { return; }
-  metalinkFor.get("type").metalinks.push(metalink);
+export function processMetalink(doc, metalink) {
+  const element = metalink.get("element");
+  const isMetalinkFor = element?.isMetalinkFor;
+
+  if (!isMetalinkFor) { return; }
+
+  const metalinks = isMetalinkFor.get("type").metalinks;
+  metalinks[element.metalinkIndex] = metalink;
+
+  checkIfTypeHasBecomeReady(doc, isMetalinkFor);
+}
+
+export function notifyLinkTypeDownloaded(doc, typeEntity) {
+  const typeComponent = typeEntity.get("type");
+  const linkComponent = typeEntity.get("link");
+  typeComponent.metalinks = new Array(getMetalinks(linkComponent.link).length);
+  typeComponent.metalinks.fill(undefined);
+  checkIfTypeHasBecomeReady(doc, typeEntity);
+}
+
+export function getMetalinks(link) {
+  return link.ends.filter(end => end.name === "metalink").map(end => end.pointers).flat();
 }
 
 function TypeComponent(ref) {
@@ -62,6 +84,7 @@ function TypeComponent(ref) {
   return Component("type", obj => Object.assign(obj, {
     ref,
     refType,
+    ready: false,
     instances: [],
     metalinks: []
   }));
@@ -80,5 +103,57 @@ function matchingRef(ref1, ref2) {
 }
 
 function findType(doc, typeRef) {
-  doc.getComponents("type").find(typeComponent => matchingRef(typeRef, typeComponent.ref));
+  return doc.getComponents("type").find(typeComponent => matchingRef(typeRef, typeComponent.ref));
+}
+
+function checkIfTypeHasBecomeReady(doc, typeEntity) {
+  const typeComponent = typeEntity.get("type");
+  const linkComponent = typeEntity.get("link");
+  const metatype = linkComponent?.type;
+  
+  // Is the type already ready?
+  if (typeComponent.ready) {
+    return;
+  }
+
+  // A type that's a link is not ready if the link has not been downloaded.
+  if (linkComponent && !linkComponent.link) {
+    return;
+  }
+
+  // A type cannot be ready until its metatype (if it has one) is ready.
+  if (metatype && !metatype.get("type")?.ready) {
+    return;
+  }
+
+  // It's not ready if we haven't downloaded all the metalinks.
+  const metalinks = typeComponent.metalinks;
+  if (metalinks.some(m => !m)) {
+    return;
+  }
+
+  // The types of the metalinks must also be ready.
+  if (metalinks.some(m => !m.get("link").type?.get("type").ready)) {
+    return;
+  }
+
+  // OK, it's ready. Mark it as such an raise an event for each instance.
+  // If this is a metatype then its instances may now also be ready.
+  // If a metalink's type becomes ready then its owning type may now also be ready.
+
+  typeComponent.ready = true;
+  
+  
+  typeComponent.instances.forEach(instance => {
+    if (instance.get("type")) {
+      checkIfTypeHasBecomeReady(doc, instance);
+    }
+
+    const element = instance.get("element");
+    if (element.isMetalinkFor) {
+      checkIfTypeHasBecomeReady(doc, element.isMetalinkFor);
+    }
+
+    doc.queueEvent("type ready", {entity: instance});
+  });  
 }
